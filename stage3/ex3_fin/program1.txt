@@ -1,0 +1,12 @@
+begin
+a=1;
+while(a<10)
+do
+	if(a==4)
+	then
+		break;
+	endif;
+	a=a+1;
+	write(a);
+endwhile;
+end;

@@ -1,0 +1,9 @@
+decl
+	str a;
+enddecl;
+
+begin
+	a="nigga";
+	write(a);
+end;
+
