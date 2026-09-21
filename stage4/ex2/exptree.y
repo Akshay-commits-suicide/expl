@@ -63,14 +63,14 @@
 %left NE EQ
 %left '<' '>' LE GE
 %left '+' '-'
-%left '*' '/'
+%left '*' '/' '%'
 
 %%
 
 program : declarations stmtlist
 	{
 		$$=$2;
-		evaluate($2);
+		//evaluate($2);
 		codegen($2);
 	}
 	| declarations
@@ -111,6 +111,10 @@ varlist : varlist ',' ID '[' NUM ']' '[' NUM ']'
 	{
 		 install($3,currentType,$5->val,0);
 	}
+	| varlist ',' '*' ID
+	{
+		install($4,currentType,1,-1);
+	}
 	| varlist ',' ID
 	{
 		install($3,currentType,1,0);
@@ -122,6 +126,10 @@ varlist : varlist ',' ID '[' NUM ']' '[' NUM ']'
 	| ID '[' NUM ']'
 	{
 		install($1,currentType,$3->val,0);
+	}
+	| '*' ID
+	{
+		install($2,currentType,1,-1);
 	}
 	| ID
 	{
@@ -223,6 +231,10 @@ inputstmt
 		}
 		$$ = makeReadNode($3);
 	}
+	| READ '(' '*' ID ')' ';'
+	{
+		 $$ = makeReadPointerNode($4);
+	}
 	| READ '(' ID '[' E ']' ')' ';'
 	{
 		$$ = makeReadArrayNode($3,$5);
@@ -243,6 +255,10 @@ asgstmt
 	: ID '=' E ';'
 	{
 		$$ = makeAssignmentNode($1,$3);
+	}
+	| '*' ID '=' E ';'
+	{
+		$$ = makePointerAssignmentNode($2,$4);
 	}
 	| ID '[' E ']' '=' E ';'
 	{
@@ -283,6 +299,10 @@ E :
     {
         $$ = makeOperatorNode('/', $1, $3);
     }
+	| E '%' E
+		{
+				$$ = makeOperatorNode('%',$1,$3);
+		}
   | E '>' E
     {
         $$ = makeOperatorNode('>', $1, $3);
@@ -317,7 +337,7 @@ E :
     }
   | STRR
   {
-	$$ =$1;
+		$$ =$1;
   }
 	| ID '[' E ']' '[' E ']'
 	{
@@ -327,9 +347,17 @@ E :
   {
 		$$ = makeArrayNode($1,$3);
   }
+	| '*' ID
+	{
+			$$ = makeDeReferenceNode($2);
+	}
+	| '&' ID
+	{
+			$$ = makeAddressNode($2);
+	}
   | ID
   {
-		$$ = makeVariableNode($1);
+			$$ = makeVariableNode($1);
   }
   ;
 

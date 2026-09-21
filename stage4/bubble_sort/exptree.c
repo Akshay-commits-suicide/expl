@@ -16,7 +16,15 @@ tnode *makeLeafNode(int n)
 	temp->type = TYPE_INT;
 	return temp;
 }
-
+void printt()
+{
+	gsymbol* temp = ghead;
+	while(!temp)
+	{
+		printf("%s %d\n",temp->name,temp->binding+4096 );
+		temp=temp->next;
+	}
+}
 tnode *makeStringNode(char *name)
 {
 	tnode *temp = (tnode *)(calloc(1, sizeof(tnode)));
@@ -168,7 +176,7 @@ int install(char *name, int type, int size, int size1)
 	newnode->name = strdup(name);
 	newnode->binding = binding;
 	newnode->next = NULL;
-
+        printf("%s %d  %d\n",newnode->name,newnode->size,newnode->binding+4096 );
 	if (size1 == 0)
 	{
 		binding += size;

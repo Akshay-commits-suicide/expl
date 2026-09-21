@@ -29,6 +29,38 @@ tnode *makeStringNode(char *name)
 	return temp;
 }
 
+tnode *makeAddressNode(char *name)
+{
+	gsymbol *sym = lookup(name);
+	if (sym->size1 == -1)
+	{
+		yyerror("ERROR:Too many References\n");
+	}
+	if (sym->size1 > 0 || sym->size > 1)
+	{
+		yyerror("ERROR:Cannot take address of whole array\n");
+	}
+	tnode *temp = (tnode *)(calloc(1, sizeof(tnode)));
+	temp->name = strdup(name);
+	temp->symbol = sym;
+	temp->type = TYPE_INT;
+	temp->nodetype = NODE_ADDR;
+	return temp;
+}
+tnode *makeDeReferenceNode(char *name)
+{
+	gsymbol *sym = lookup(name);
+	if (sym->size1 != -1)
+	{
+		yyerror("ERROR:Cannot reference a non-pointer\n");
+	}
+	tnode *temp = (tnode *)(calloc(1, sizeof(tnode)));
+	temp->name = strdup(name);
+	temp->symbol = sym;
+	temp->type = sym->type;
+	temp->nodetype = NODE_DEREF;
+	return temp;
+}
 tnode *makeArrayNode(char *name, tnode *index)
 {
 	if (index->type != TYPE_INT)
@@ -168,8 +200,9 @@ int install(char *name, int type, int size, int size1)
 	newnode->name = strdup(name);
 	newnode->binding = binding;
 	newnode->next = NULL;
+	printf(" %s %d %d\n", newnode->name, newnode->size, newnode->binding);
 
-	if (size1 == 0)
+	if (size1 == 0 || size1 == -1)
 	{
 		binding += size;
 	}
@@ -210,18 +243,49 @@ tnode *makeContinueNode()
 tnode *makeAssignmentNode(char *name, tnode *t1)
 {
 	gsymbol *sym = lookup(name);
-	if (sym->size > 1 || sym->size1 != 0)
+	if (sym->size > 1 || sym->size1 > 0)
 	{
 		yyerror("ERROR:Cannot directly assign to array\n");
 	}
-	if (t1->type != sym->type)
+	if (sym->size1 == -1)
 	{
-		yyerror("Type mismatch:Compilation Error\n");
-		return NULL;
+		if (t1->nodetype != NODE_ADDR)
+		{
+			yyerror("ERROR:Cannot assign non-address values\n");
+		}
+	}
+	else
+	{
+		if (t1->type != sym->type)
+		{
+			yyerror("Type mismatch:Compilation Error\n");
+			return NULL;
+		}
 	}
 	tnode *temp = (tnode *)(calloc(1, sizeof(tnode)));
 	temp->type = sym->type;
 	temp->nodetype = NODE_ASSIGN;
+	temp->name = strdup(name);
+	temp->symbol = sym;
+	temp->left = t1;
+	return temp;
+}
+
+tnode *makePointerAssignmentNode(char *name, tnode *t1)
+{
+	gsymbol *sym = lookup(name);
+	if (sym->size1 != -1)
+	{
+		yyerror("ERROR:Cannot deference non-pointer type\n");
+	}
+	if (sym->type != t1->type)
+	{
+		yyerror("Invalid Address\n");
+		return NULL;
+	}
+	tnode *temp = (tnode *)(calloc(1, sizeof(tnode)));
+	temp->type = sym->type;
+	temp->nodetype = NODE_DEREF_ASSG;
 	temp->name = strdup(name);
 	temp->symbol = sym;
 	temp->left = t1;
@@ -246,9 +310,24 @@ tnode *makeTreeNode(int nodetype, tnode *t1, tnode *t2, tnode *t3)
 tnode *makeReadNode(char *name)
 {
 	gsymbol *sym = lookup(name);
-	if (sym->size > 1 || sym->size1 != 0)
+	if (sym->size > 1 || sym->size1 > 0)
 	{
 		yyerror("ERROR:Invalid array Read\n");
+	}
+	tnode *temp = (tnode *)(calloc(1, sizeof(tnode)));
+	temp->nodetype = NODE_READ;
+	temp->name = strdup(name);
+	temp->symbol = sym;
+	temp->type = sym->type;
+	return temp;
+}
+
+tnode *makeReadPointerNode(char *name)
+{
+	gsymbol *sym = lookup(name);
+	if (sym->size1 != -1)
+	{
+		yyerror("ERROR:Cannot Deference a non-pointer\n");
 	}
 	tnode *temp = (tnode *)(calloc(1, sizeof(tnode)));
 	temp->nodetype = NODE_READ;
@@ -314,7 +393,7 @@ tnode *makeWriteNode(tnode *a)
 tnode *makeVariableNode(char *name)
 {
 	gsymbol *temp1 = lookup(name);
-	if (temp1->size > 1 || temp1->size1 != 0)
+	if (temp1->size > 1 || temp1->size1 > 0)
 	{
 		yyerror("ERROR:Cannot used an array without indexing\n");
 	}
@@ -415,6 +494,15 @@ int evaluate(tnode *t)
 	{
 		return variables[t->symbol->binding];
 	}
+	else if (t->nodetype == NODE_ADDR)
+	{
+		return t->symbol->binding;
+	}
+	else if (t->nodetype == NODE_DEREF)
+	{
+		int address = variables[t->symbol->binding];
+		return variables[address];
+	}
 	else if (t->nodetype == NODE_ARR)
 	{
 		int ind = evaluate(t->left);
@@ -462,6 +550,10 @@ int evaluate(tnode *t)
 		else if (t->op[0] == '/')
 		{
 			return evaluate(t->left) / evaluate(t->right);
+		}
+		else if (t->op[0] == '%')
+		{
+			return evaluate(t->left) % evaluate(t->right);
 		}
 		else if (strcmp(t->op, "==") == 0)
 		{
@@ -552,6 +644,10 @@ int evaluate(tnode *t)
 			}
 			return 0;
 		}
+	}
+	else if (t->nodetype == NODE_DEREF_ASSG)
+	{
+		int address = t->symbol->binding;
 	}
 	else if (t->nodetype == NODE_2D_ARR_ASSG)
 	{

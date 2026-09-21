@@ -463,6 +463,10 @@ int evaluate(tnode *t)
 		{
 			return evaluate(t->left) / evaluate(t->right);
 		}
+		else if (t->op[0] == '%')
+		{
+			return evaluate(t->left) % evaluate(t->right);
+		}
 		else if (strcmp(t->op, "==") == 0)
 		{
 			return evaluate(t->left) == evaluate(t->right);

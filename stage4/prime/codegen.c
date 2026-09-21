@@ -94,6 +94,12 @@ int codegen(struct tnode *t)
 			freeReg();
 			return r1;
 		}
+		else if (t->op[0] == '%')
+		{
+			fprintf(intermediate, "MOD R%d, R%d\n", r1, r2);
+			freeReg();
+			return r1;
+		}
 		else if (strcmp(t->op, "<=") == 0)
 		{
 			fprintf(intermediate, "LE R%d, R%d\n", r1, r2);

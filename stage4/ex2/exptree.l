@@ -66,7 +66,7 @@
 
 [ \t \n]	{}
 
-[-+*/();=><\[\],] {return *yytext;}
+[-+*/%();=><\[\],&] {return *yytext;}
 
 
 . {yyerror("Invalid char error\n");

@@ -94,6 +94,12 @@ int codegen(struct tnode *t)
 			freeReg();
 			return r1;
 		}
+		else if (t->op[0] == '%')
+		{
+			fprintf(intermediate, "MOD R%d, R%d\n", r1, r2);
+			freeReg();
+			return r1;
+		}
 		else if (strcmp(t->op, "<=") == 0)
 		{
 			fprintf(intermediate, "LE R%d, R%d\n", r1, r2);
@@ -169,6 +175,17 @@ int codegen(struct tnode *t)
 		int r = codegen(t->left);
 		int address = 4096 + (t->symbol->binding);
 		fprintf(intermediate, "MOV [%d], R%d\n", address, r);
+		freeReg();
+		return -1;
+	}
+	else if (t->nodetype == NODE_DEREF_ASSG)
+	{
+		int r = codegen(t->left);
+		int address = 4096 + (t->symbol->binding);
+		int r1 = getReg();
+		fprintf(intermediate, "MOV R%d,[%d]\n", r1, address);
+		fprintf(intermediate, "MOV [R%d],R%d\n", r1, r);
+		freeReg();
 		freeReg();
 		return -1;
 	}
@@ -276,6 +293,23 @@ int codegen(struct tnode *t)
 		pop();
 		return -1;
 	}
+	else if (t->nodetype == NODE_ADDR)
+	{
+		int address = t->symbol->binding + 4096;
+		int r = getReg();
+		fprintf(intermediate, "MOV R%d, %d\n", r, address);
+		return r;
+	}
+	else if (t->nodetype == NODE_DEREF)
+	{
+		int address = t->symbol->binding + 4096;
+		int r = getReg();
+		int r1 = getReg();
+		fprintf(intermediate, "MOV R%d, [%d]\n", r1, address);
+		fprintf(intermediate, "MOV R%d, [R%d]\n", r, r1);
+		freeReg();
+		return r;
+	}
 	else if (t->nodetype == NODE_REPEAT)
 	{
 		int startlab = getLabel();
@@ -296,7 +330,11 @@ int codegen(struct tnode *t)
 	{
 		int r = getReg();
 		int address = 4096 + (t->symbol->binding);
-		if (t->middle != NULL)
+		if (t->symbol->size1 == -1)
+		{
+			fprintf(intermediate, "MOV R%d, [%d]\n", r, address);
+		}
+		else if (t->middle != NULL)
 		{
 			int r1 = codegen(t->left);
 			fprintf(intermediate, "MOV R%d, %d\n", r, address);

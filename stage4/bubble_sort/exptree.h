@@ -91,4 +91,6 @@ int codegen(struct tnode *t);
 
 int yyerror(char *s);
 
+void printt();
+
 #endif

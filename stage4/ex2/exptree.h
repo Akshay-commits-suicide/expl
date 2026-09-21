@@ -19,6 +19,9 @@
 #define NODE_ARR_ASSG 16
 #define NODE_2D_ARR 17
 #define NODE_2D_ARR_ASSG 18
+#define NODE_ADDR 19
+#define NODE_DEREF 20
+#define NODE_DEREF_ASSG 21
 
 #define TYPE_INT 0
 #define TYPE_BOOL 1
@@ -80,6 +83,14 @@ struct tnode *make2DArrayNode(char *name, struct tnode *index1, struct tnode *in
 struct tnode *makeAssignment2DArrayNode(char *name, struct tnode *index1, struct tnode *index2, struct tnode *value);
 
 struct tnode *makeRead2DArrayNode(char *name, struct tnode *index1, struct tnode *index2);
+
+struct tnode *makeAddressNode(char *name);
+
+struct tnode *makeDeReferenceNode(char *name);
+
+struct tnode *makePointerAssignmentNode(char *name, struct tnode *value);
+
+struct tnode *makeReadPointerNode(char *name);
 
 int install(char *name, int type, int size1, int size2);
 

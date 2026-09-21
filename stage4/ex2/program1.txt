@@ -1,0 +1,7 @@
+decl
+    str x, *p;
+enddecl;
+
+p = &x;
+*p = "hello";
+write(x);

@@ -63,7 +63,7 @@
 %left NE EQ
 %left '<' '>' LE GE
 %left '+' '-'
-%left '*' '/'
+%left '*' '/' '%'
 
 %%
 
@@ -282,6 +282,10 @@ E :
   | E '/' E
     {
         $$ = makeOperatorNode('/', $1, $3);
+    }
+	| E '%' E
+    {
+        $$ = makeOperatorNode('%', $1, $3);
     }
   | E '>' E
     {

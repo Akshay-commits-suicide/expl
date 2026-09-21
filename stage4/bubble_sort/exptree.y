@@ -70,6 +70,7 @@
 program : declarations stmtlist
 	{
 		$$=$2;
+		printt();
 		evaluate($2);
 		codegen($2);
 	}
