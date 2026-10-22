@@ -297,11 +297,11 @@ int install(char *name, int type, int size, int size1)
 
 Param *makeParam(char *name, int type, int isPointer)
 {
-    Param *p = (Param *)calloc(1, sizeof(Param));
-    p->name = strdup(name);
-    p->type = type;
-    p->isPointer = isPointer;
-    return p;
+	Param *p = (Param *)calloc(1, sizeof(Param));
+	p->name = strdup(name);
+	p->type = type;
+	p->isPointer = isPointer;
+	return p;
 }
 
 Param *appendParam(Param *a, Param *b)
@@ -317,71 +317,71 @@ Param *appendParam(Param *a, Param *b)
 
 static int sameParams(Param *a, Param *b)
 {
-    while (a != NULL && b != NULL)
-    {
-        if (a->type != b->type || a->isPointer != b->isPointer)
-            return 0;
-        a = a->next;
-        b = b->next;
-    }
-    return a == NULL && b == NULL;
+	while (a != NULL && b != NULL)
+	{
+		if (a->type != b->type || a->isPointer != b->isPointer)
+			return 0;
+		a = a->next;
+		b = b->next;
+	}
+	return a == NULL && b == NULL;
 }
 
 int installFunction(char *name, int type, Param *params, int isPointer)
 {
-    gsymbol *temp = ghead;
-    while (temp != NULL)
-    {
-        if (strcmp(name, temp->name) == 0)
-        {
-            if (!temp->isFunction)
-                yyerror("ERROR: Function/variable with same name already declared\n");
+	gsymbol *temp = ghead;
+	while (temp != NULL)
+	{
+		if (strcmp(name, temp->name) == 0)
+		{
+			if (!temp->isFunction)
+				yyerror("ERROR: Function/variable with same name already declared\n");
 
-            /* A real definition may complete either a prototype or a
-             * forward-call placeholder. A second definition is illegal. */
-            if (temp->body != NULL)
-                yyerror("ERROR: Function already defined\n");
+			/* A real definition may complete either a prototype or a
+			 * forward-call placeholder. A second definition is illegal. */
+			if (temp->body != NULL)
+				yyerror("ERROR: Function already defined\n");
 
-            if (temp->type != -1 &&
-                (temp->type != type || temp->isPointer != isPointer))
-                yyerror("ERROR: Function return type mismatch\n");
+			if (temp->type != -1 &&
+					(temp->type != type || temp->isPointer != isPointer))
+				yyerror("ERROR: Function return type mismatch\n");
 
-            if (temp->params != NULL && !sameParams(temp->params, params))
-                yyerror("ERROR: Function parameter mismatch\n");
+			if (temp->params != NULL && !sameParams(temp->params, params))
+				yyerror("ERROR: Function parameter mismatch\n");
 
-            temp->type = type;
-            temp->isPointer = isPointer;
-            temp->params = params;
-            temp->paramCount = 0;
-            for (Param *p = params; p != NULL; p = p->next)
-                temp->paramCount++;
-            return 1;
-        }
-        temp = temp->next;
-    }
+			temp->type = type;
+			temp->isPointer = isPointer;
+			temp->params = params;
+			temp->paramCount = 0;
+			for (Param *p = params; p != NULL; p = p->next)
+				temp->paramCount++;
+			return 1;
+		}
+		temp = temp->next;
+	}
 
-    gsymbol *f = (gsymbol *)calloc(1, sizeof(gsymbol));
-    f->name = strdup(name);
-    f->type = type;
-    f->isFunction = 1;
-    f->isPointer = isPointer;
-    f->binding = binding;
-    f->params = params;
-    f->paramCount = 0;
-    for (Param *p = params; p != NULL; p = p->next)
-        f->paramCount++;
-    f->next = NULL;
+	gsymbol *f = (gsymbol *)calloc(1, sizeof(gsymbol));
+	f->name = strdup(name);
+	f->type = type;
+	f->isFunction = 1;
+	f->isPointer = isPointer;
+	f->binding = binding;
+	f->params = params;
+	f->paramCount = 0;
+	for (Param *p = params; p != NULL; p = p->next)
+		f->paramCount++;
+	f->next = NULL;
 
-    if (ghead == NULL)
-        ghead = f;
-    else
-    {
-        temp = ghead;
-        while (temp->next != NULL)
-            temp = temp->next;
-        temp->next = f;
-    }
-    return 1;
+	if (ghead == NULL)
+		ghead = f;
+	else
+	{
+		temp = ghead;
+		while (temp->next != NULL)
+			temp = temp->next;
+		temp->next = f;
+	}
+	return 1;
 }
 
 void beginFunction(gsymbol *sym)
@@ -471,9 +471,9 @@ tnode *makeCallNode(char *name, tnode *args, int argc)
 
 tnode *makeCallStmtNode(char *name, tnode *args, int argc)
 {
-    tnode *temp = makeCallNode(name, args, argc);
-    temp->nodetype = NODE_CALL_STMT;
-    return temp;
+	tnode *temp = makeCallNode(name, args, argc);
+	temp->nodetype = NODE_CALL_STMT;
+	return temp;
 }
 
 tnode *makeReturnNode(tnode *expr)
@@ -481,9 +481,9 @@ tnode *makeReturnNode(tnode *expr)
 	if (currentFunction == NULL)
 		yyerror("ERROR:Return statement outside function\n");
 	if (expr == NULL ||
-        (expr->type != currentFunction->type && expr->type != -1) ||
-        (expr->type != -1 && expr->isPointer != currentFunction->isPointer))
-        yyerror("ERROR:Return type mismatch\n");
+			(expr->type != currentFunction->type && expr->type != -1) ||
+			(expr->type != -1 && expr->isPointer != currentFunction->isPointer))
+		yyerror("ERROR:Return type mismatch\n");
 	tnode *temp = (tnode *)calloc(1, sizeof(tnode));
 	temp->nodetype = NODE_RETURN;
 	temp->left = expr;
@@ -529,22 +529,22 @@ tnode *makeAssignmentNode(char *name, tnode *t1)
 		yyerror("ERROR:Cannot directly assign to array\n");
 	}
 	if (sym->size1 == -1)
-    {
-        if (t1->type != sym->type && t1->type != -1)
-            yyerror("ERROR:Pointer base type mismatch\n");
-        if (t1->type != -1 && !t1->isPointer)
-            yyerror("ERROR:Cannot assign non-pointer value to pointer\n");
-    }
-    else
-    {
-        if (t1->type != sym->type && t1->type != -1)
-        {
-            yyerror("Type mismatch:Compilation Error\n");
-            return NULL;
-        }
-        if (t1->type != -1 && t1->isPointer)
-            yyerror("ERROR:Cannot assign pointer to non-pointer\n");
-    }
+	{
+		if (t1->type != sym->type && t1->type != -1)
+			yyerror("ERROR:Pointer base type mismatch\n");
+		if (t1->type != -1 && !t1->isPointer)
+			yyerror("ERROR:Cannot assign non-pointer value to pointer\n");
+	}
+	else
+	{
+		if (t1->type != sym->type && t1->type != -1)
+		{
+			yyerror("Type mismatch:Compilation Error\n");
+			return NULL;
+		}
+		if (t1->type != -1 && t1->isPointer)
+			yyerror("ERROR:Cannot assign pointer to non-pointer\n");
+	}
 	tnode *temp = (tnode *)(calloc(1, sizeof(tnode)));
 	temp->type = sym->type;
 	temp->nodetype = NODE_ASSIGN;
@@ -782,463 +782,6 @@ int variables[1000] = {0};
 char *strvar[1000] = {NULL};
 int strind = -1;
 
-// nvm these shi
-
-int evaluate(tnode *t)
-{
-	if (t == NULL)
-	{
-		return 0;
-	}
-	else if (t->nodetype == NODE_NUM)
-	{
-		return t->val;
-	}
-	else if (t->nodetype == NODE_STR)
-	{
-		return 0;
-	}
-	else if (t->nodetype == NODE_VAR)
-	{
-		return variables[t->symbol->binding];
-	}
-	else if (t->nodetype == NODE_ADDR)
-	{
-		return t->symbol->binding;
-	}
-	else if (t->nodetype == NODE_DEREF)
-	{
-		int address = variables[t->symbol->binding];
-		return variables[address];
-	}
-	else if (t->nodetype == NODE_ARR)
-	{
-		int ind = evaluate(t->left);
-		if (ind < 0 || ind >= t->symbol->size)
-		{
-			yyerror("ERROR:Out of bound index for array detected\n");
-		}
-		return variables[t->symbol->binding + ind];
-	}
-	else if (t->nodetype == NODE_2D_ARR)
-	{
-		int ind = evaluate(t->left);
-		int ind1 = evaluate(t->middle);
-		if (ind < 0 || ind >= t->symbol->size || ind1 < 0 || ind1 >= t->symbol->size1)
-		{
-			yyerror("ERROR:Out of bound index for array detected\n");
-		}
-		int offset = ind * t->symbol->size1 + ind1;
-		return variables[t->symbol->binding + offset];
-	}
-	else if (t->nodetype == NODE_BREAK)
-	{
-		breakflag = 1;
-		return 0;
-	}
-	else if (t->nodetype == NODE_CONTINUE)
-	{
-		continueflag = 1;
-		return 0;
-	}
-	else if (t->nodetype == NODE_OP)
-	{
-		if (t->op[0] == '+')
-		{
-			return evaluate(t->left) + evaluate(t->right);
-		}
-		else if (t->op[0] == '-')
-		{
-			return evaluate(t->left) - evaluate(t->right);
-		}
-		else if (t->op[0] == '*')
-		{
-			return evaluate(t->left) * evaluate(t->right);
-		}
-		else if (t->op[0] == '/')
-		{
-			return evaluate(t->left) / evaluate(t->right);
-		}
-		else if (t->op[0] == '%')
-		{
-			return evaluate(t->left) % evaluate(t->right);
-		}
-		else if (strcmp(t->op, "==") == 0)
-		{
-			return evaluate(t->left) == evaluate(t->right);
-		}
-		else if (strcmp(t->op, "!=") == 0)
-		{
-			return evaluate(t->left) != evaluate(t->right);
-		}
-		else if (strcmp(t->op, "<") == 0)
-		{
-			return evaluate(t->left) < evaluate(t->right);
-		}
-		else if (strcmp(t->op, ">") == 0)
-		{
-			return evaluate(t->left) > evaluate(t->right);
-		}
-		else if (strcmp(t->op, "<=") == 0)
-		{
-			return evaluate(t->left) <= evaluate(t->right);
-		}
-		else if (strcmp(t->op, ">=") == 0)
-		{
-			return evaluate(t->left) >= evaluate(t->right);
-		}
-	}
-	else if (t->nodetype == NODE_ASSIGN)
-	{
-		if (t->type == TYPE_INT)
-		{
-			int value = evaluate(t->left);
-			variables[t->symbol->binding] = value;
-			return value;
-		}
-		else
-		{
-			int ind = t->symbol->binding;
-			free(strvar[ind]);
-			if (t->left->nodetype == NODE_STR)
-			{
-				strvar[ind] = strdup(t->left->name);
-				return 0;
-			}
-			int sind = t->left->symbol->binding;
-			if (strvar[sind] != NULL)
-			{
-				strvar[ind] = strdup(strvar[sind]);
-			}
-			else
-			{
-				strvar[ind] = NULL;
-			}
-			return 0;
-		}
-	}
-	else if (t->nodetype == NODE_ARR_ASSG)
-	{
-		int ind = evaluate(t->left);
-		if (ind < 0 || ind >= t->symbol->size)
-		{
-			yyerror("ERROR:Out of bound index for array detected\n");
-		}
-		if (t->type == TYPE_INT)
-		{
-			int val = evaluate(t->right);
-			variables[t->symbol->binding + ind] = val;
-			return val;
-		}
-		else
-		{
-			free(strvar[t->symbol->binding + ind]);
-			if (t->right->nodetype == NODE_STR)
-			{
-				strvar[t->symbol->binding + ind] = strdup(t->right->name);
-			}
-			else
-			{
-				int punind = evaluate(t->right->left);
-				int srcind = t->right->symbol->binding + punind;
-				if (strvar[srcind] == NULL)
-				{
-					strvar[t->symbol->binding + ind] = NULL;
-				}
-				else
-				{
-					strvar[t->symbol->binding + ind] = strdup(strvar[srcind]);
-				}
-			}
-			return 0;
-		}
-	}
-	else if (t->nodetype == NODE_DEREF_ASSG)
-	{
-		int address = t->symbol->binding;
-	}
-	else if (t->nodetype == NODE_2D_ARR_ASSG)
-	{
-		int ind = evaluate(t->left);
-		int ind1 = evaluate(t->middle);
-		int offset = ind * t->symbol->size1 + ind1;
-		if (ind < 0 || ind >= t->symbol->size || ind1 < 0 || ind1 >= t->symbol->size1)
-		{
-			yyerror("ERROR:Out of bound index for array detected\n");
-		}
-		if (t->type == TYPE_INT)
-		{
-			int val = evaluate(t->right);
-			variables[t->symbol->binding + offset] = val;
-			return val;
-		}
-		else
-		{
-			free(strvar[t->symbol->binding + offset]);
-			if (t->right->nodetype == NODE_STR)
-			{
-				strvar[t->symbol->binding + offset] = strdup(t->right->name);
-			}
-			else if (t->right->nodetype == NODE_2D_ARR)
-			{
-				int punind1 = evaluate(t->right->left);
-				int punind2 = evaluate(t->right->middle);
-				if (punind1 < 0 || punind1 >= t->right->symbol->size || punind2 < 0 || punind2 >= t->right->symbol->size1)
-				{
-					yyerror("ERROR:Out of bound index for array detected\n");
-				}
-				int offset1 = punind1 * (t->right->symbol->size1) + punind2;
-				int srcind = t->right->symbol->binding + offset1;
-				if (strvar[srcind] == NULL)
-				{
-					strvar[t->symbol->binding + offset] = NULL;
-				}
-				else
-				{
-					strvar[t->symbol->binding + offset] = strdup(strvar[srcind]);
-				}
-			}
-			else
-			{
-				int punind = evaluate(t->right->left);
-				if (punind < 0 || punind >= t->right->symbol->size)
-				{
-					yyerror("ERROR:Out of bound index for array detected\n");
-				}
-				int srcind = t->right->symbol->binding + punind;
-				if (strvar[srcind] == NULL)
-				{
-					strvar[t->symbol->binding + offset] = NULL;
-				}
-				else
-				{
-					strvar[t->symbol->binding + offset] = strdup(strvar[srcind]);
-				}
-			}
-			return 0;
-		}
-	}
-	else if (t->nodetype == NODE_READ)
-	{
-		if (t->middle != NULL)
-		{
-			int ind = evaluate(t->left);
-			int ind1 = evaluate(t->middle);
-			int offset = ind * t->symbol->size1 + ind1;
-			if (ind < 0 || ind >= t->symbol->size || ind1 < 0 || ind1 >= t->symbol->size1)
-			{
-				yyerror("ERROR:Out of Bound Indexing\n");
-			}
-			int pos = t->symbol->binding + offset;
-			printf("Enter input for %s[%d][%d]: ", t->name, ind, ind1);
-			if (t->type == TYPE_INT)
-			{
-				int num;
-				scanf("%d", &num);
-				variables[pos] = num;
-				return num;
-			}
-			else
-			{
-				char buffer[2000];
-				scanf(" %1999[^\n]", buffer);
-				free(strvar[pos]);
-				strvar[pos] = strdup(buffer);
-				return 0;
-			}
-		}
-
-		else if (t->left != NULL)
-		{
-			int ind = evaluate(t->left);
-			if (ind < 0 || ind >= t->symbol->size)
-			{
-				yyerror("ERROR:Out of Bound Indexing\n");
-			}
-			int pos = t->symbol->binding + ind;
-			printf("Enter input for %s[%d]: ", t->name, ind);
-			if (t->type == TYPE_INT)
-			{
-				int num;
-				scanf("%d", &num);
-				variables[pos] = num;
-				return num;
-			}
-			else
-			{
-				char buffer[2000];
-				scanf(" %1999[^\n]", buffer);
-				free(strvar[pos]);
-				strvar[pos] = strdup(buffer);
-				return 0;
-			}
-		}
-
-		else
-		{
-			printf("Enter input for %s: ", t->name);
-			if (t->type == TYPE_INT)
-			{
-				int num;
-				scanf("%d", &num);
-				variables[t->symbol->binding] = num;
-				return num;
-			}
-			else
-			{
-				char buffer[2000];
-				scanf(" %1999[^\n]", buffer);
-				free(strvar[t->symbol->binding]);
-				strvar[t->symbol->binding] = strdup(buffer);
-				return 0;
-			}
-		}
-	}
-	else if (t->nodetype == NODE_WRITE)
-	{
-		if (t->left->nodetype == NODE_2D_ARR)
-		{
-			int ind = evaluate(t->left->left);
-			int ind1 = evaluate(t->left->middle);
-			int offset = ind * (t->left->symbol->size1) + ind1;
-
-			if (ind < 0 || ind >= t->left->symbol->size || ind1 < 0 || ind1 >= t->left->symbol->size1)
-			{
-				yyerror("ERROR:Out of Bound Indexing\n");
-			}
-			int pos = t->left->symbol->binding + offset;
-			if (t->left->type == TYPE_INT)
-			{
-				printf("%d\n", variables[pos]);
-			}
-			else
-			{
-				if (strvar[pos] != NULL)
-				{
-					printf("%s\n", strvar[pos]);
-				}
-			}
-			return 0;
-		}
-		if (t->left->nodetype == NODE_ARR)
-		{
-			int ind = evaluate(t->left->left);
-
-			if (ind < 0 || ind >= t->left->symbol->size)
-			{
-				yyerror("ERROR:Out of Bound Indexing\n");
-			}
-			int pos = t->left->symbol->binding + ind;
-			if (t->left->type == TYPE_INT)
-			{
-				printf("%d\n", variables[pos]);
-			}
-			else
-			{
-				if (strvar[pos] != NULL)
-				{
-					printf("%s\n", strvar[pos]);
-				}
-			}
-			return 0;
-		}
-		else if (t->left->type == TYPE_INT)
-		{
-			int ind = evaluate(t->left);
-			printf("%d\n", ind);
-			return ind;
-		}
-		else
-		{
-			if (t->left->nodetype == NODE_STR)
-			{
-				printf("%s\n", t->left->name);
-				return 0;
-			}
-			int ind = t->left->symbol->binding;
-			if (strvar[ind] != NULL)
-			{
-				printf("%s\n", strvar[ind]);
-			}
-			return 0;
-		}
-	}
-	else if (t->nodetype == NODE_CONNECTOR)
-	{
-		evaluate(t->left);
-		if (breakflag || continueflag)
-		{
-			return 0;
-		}
-		evaluate(t->right);
-		return 0;
-	}
-	else if (t->nodetype == NODE_IF)
-	{
-		if (evaluate(t->left))
-		{
-			evaluate(t->middle);
-		}
-		else if (t->right != NULL)
-		{
-			evaluate(t->right);
-		}
-		return 0;
-	}
-	else if (t->nodetype == NODE_DOWHILE)
-	{
-		do
-		{
-			evaluate(t->middle);
-			if (breakflag)
-			{
-				breakflag = 0;
-				break;
-			}
-			if (continueflag)
-			{
-				continueflag = 0;
-			}
-		} while (evaluate(t->left));
-		return 0;
-	}
-	else if (t->nodetype == NODE_REPEAT)
-	{
-		do
-		{
-			evaluate(t->middle);
-			if (breakflag)
-			{
-				breakflag = 0;
-				break;
-			}
-			if (continueflag)
-			{
-				continueflag = 0;
-			}
-		} while (!(evaluate(t->left)));
-		return 0;
-	}
-	else if (t->nodetype == NODE_WHILE)
-	{
-		while (evaluate(t->left))
-		{
-			evaluate(t->middle);
-			if (breakflag)
-			{
-				breakflag = 0;
-				break;
-			}
-			if (continueflag)
-			{
-				continueflag = 0;
-				continue;
-			}
-		}
-		return 0;
-	}
-}
-
 static void checkCallArguments(tnode *a, Param **p)
 {
 	if (a == NULL)
@@ -1252,9 +795,9 @@ static void checkCallArguments(tnode *a, Param **p)
 	if (*p == NULL)
 		yyerror("ERROR:Too many arguments\n");
 	if (a->type != (*p)->type)
-        yyerror("ERROR:Argument type mismatch\n");
-    if (a->type != -1 && a->isPointer != (*p)->isPointer)
-        yyerror("ERROR:Pointer/scalar argument mismatch\n");
+		yyerror("ERROR:Argument type mismatch\n");
+	if (a->type != -1 && a->isPointer != (*p)->isPointer)
+		yyerror("ERROR:Pointer/scalar argument mismatch\n");
 	*p = (*p)->next;
 }
 

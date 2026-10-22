@@ -291,6 +291,7 @@ int install(char *name, int type, int size, int size1)
 			temp = temp->next;
 		temp->next = newnode;
 	}
+	printf("Global symbol | Name:%s | Type:%d | Binding:%d | isFunction:0\n",name,type,binding+4096);
 	return 1;
 }
 
@@ -375,6 +376,7 @@ int installFunction(char *name, int type, Param *params)
 			temp = temp->next;
 		temp->next = f;
 	}
+	printf("Global symbol | Name:%s | Type:%d | Binding:%d | isFunction:1\n",name,type,f->binding+4096);
 	return 1;
 }
 
@@ -426,6 +428,7 @@ int installLocal(char *name, int type, int size, int size1)
 	}
 	x->next = lhead;
 	lhead = x;
+	printf("Local symbol | Name:%s | Type:%d | Binding:%d | isFunction:0\n",name,type,x->binding+4096);
 	return 1;
 }
 

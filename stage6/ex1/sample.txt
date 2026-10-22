@@ -1,0 +1,45 @@
+type
+    bst {
+        int data;
+        bst left;
+        bst right;
+    };
+endtype
+
+decl
+    bst root, temp;
+    bst nodes[3];
+enddecl
+
+int main()
+{
+    decl
+        bst curr, localNodes[2];
+    enddecl
+
+    begin
+        root.data = 10;
+        root.left = Alloc();
+        root.left.data = 20;
+        root.right = NULL;
+        curr = NULL;
+
+        nodes[0].data = 30;
+        nodes[1].left = Alloc();
+        nodes[1].left.data = 40;
+        localNodes[1].data = 50;
+
+        if (root.left.data == 20) then
+            write(root.left.data);
+        endif;
+
+        if (nodes[1].left.data == 40) then
+            write(nodes[1].left.data);
+        endif;
+
+        write(localNodes[1].data);
+
+        Free(root.left);
+        root.left = NULL;
+    end
+}
