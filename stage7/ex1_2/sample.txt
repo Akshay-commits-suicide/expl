@@ -1,0 +1,37 @@
+class
+    Point{
+        decl
+            int x;
+            int y;
+        enddecl
+    }
+endclass
+
+decl
+    Point p;
+enddecl
+
+int sumPoint(Point obj){
+    decl
+        int result;
+    enddecl
+    begin
+        result = obj.x + obj.y;
+        return result;
+    end
+}
+
+int main(){
+    decl
+        int result;
+    enddecl
+    begin
+        result = Initialize();
+        p = new(Point);
+        p.x = 10;
+        p.y = 20;
+        result = sumPoint(p);
+        write(result);
+        return 0;
+    end
+}
